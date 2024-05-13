@@ -19,7 +19,7 @@ Starshot is Drupal 10, but supercharged with some of the best modules and themes
 * [How we choose which modules and themes to include](#how-we-choose-which-modules-and-themes-to-include)
 * [Known issues & workarounds](#known-issues--workarounds)
 
-## Installation
+## Local Installation
 ```
 composer create-project drupal/starshot-project --repository='{"type":"vcs","url":"https://github.com/phenaproxima/starshot-prototype"}' --stability=dev
 ```
@@ -31,6 +31,49 @@ git clone https://github.com/phenaproxima/starshot-prototype.git starshot
 cd starshot && ddev install
 ```
 You'll need DDEV 1.23.0 or later. [See the documentation](https://ddev.readthedocs.io/en/stable/users/install/ddev-upgrade/) if you need to upgrade.
+
+## Installation on Pantheon
+
+Drush does not yet support installing sites through recipes, so apply this recipe site on Pantheon using the following workaround steps: 
+
+### Step 1: Create a new site on Pantheon using the [Drupal 10](https://dashboard.pantheon.io/sites/create?upstream_id=05495896-680b-4622-8618-11665992764c) upstream.
+
+### Step 2: Clone this template repo locally:
+```
+git clone git@github.com:lcatlett/starshot-pantheon.git
+```
+
+### Step 3: Push template files to Pantheon site:
+
+
+```
+pantheon_remote=$(terminus connection:info [pantheon-startshot-site.dev] --field=git_url)
+cd starshot-pantheon
+git remote add pantheon $pantheon_remote
+git push pantheon master --force
+```
+
+### Step 4: Run the following commands on the Pantheon site:
+
+1. Install drupal with the minimal profile:
+
+```
+terminus drush [pantheon-startshot-site.dev] -- si minimal -y
+```
+
+2. Delete existing site.uuid:
+
+```
+terminus drush [pantheon-startshot-site.dev] -- cdel system.site uuid
+```
+
+3. Import/apply the recipe with drush:
+
+```
+terminus drush [pantheon-startshot-site.dev] -- ev "passthru('php core/scripts/drupal recipe ../recipes/starshot');"
+```
+
+
 
 ## Whom this is for
 Anyone who wants to create a website with Drupal, but doesn't want to build it -- including the authoring experience -- from the ground up using the relatively bare-bones tools provided by Drupal core. You need extra modules to get the most out of Drupal, but it can be hard to know how to start.
