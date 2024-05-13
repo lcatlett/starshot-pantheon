@@ -1,6 +1,6 @@
 {
-    "name": "drupal/starshot-project",
-    "description": "Drupal with a bunch of useful stuff.",
+    "name": "drupal/starshot-project-pantheon",
+    "description": "Drupal with a bunch of useful stuff - Compatible with Pantheon.",
     "type": "project",
     "license": "GPL-2.0-or-later",
     "homepage": "https://www.drupal.org/project/drupal",
@@ -8,12 +8,16 @@
         "docs": "https://www.drupal.org/docs/user_guide/en/index.html",
         "chat": "https://www.drupal.org/node/314178"
     },
-    "repositories": {
-        "drupal": {
+    "repositories": [
+        {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "path",
+            "url": "upstream-configuration"
         }
-    },
+    ],
     "require": {
         "composer/installers": "^2.0",
         "cweagans/composer-patches": "^2",
@@ -42,7 +46,9 @@
         "drupal/uli_custom_workflow": "^1.0",
         "drupal/webform": "^6.2",
         "drush/drush": "^12.5",
-        "oomphinc/composer-installers-extender": "^2"
+        "oomphinc/composer-installers-extender": "^2",
+        "pantheon-upstreams/upstream-configuration": "dev-main",
+        "pantheon-systems/drupal-integrations": "^10"
     },
     "require-dev": {
         "drupal/core-dev": "^10.3",
@@ -66,12 +72,21 @@
             "oomphinc/composer-installers-extender": true
         },
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.2.0"
+        }
     },
     "extra": {
         "drupal-scaffold": {
             "locations": {
                 "web-root": "web/"
+            },
+            "allowed-packages": ["pantheon-systems/drupal-integrations"],
+            "file-mapping": {
+                "[project-root]/.editorconfig": false,
+                "[project-root]/pantheon.upstream.yml": false,
+                "[project-root]/.gitattributes": false
             }
         },
         "installer-paths": {
@@ -84,14 +99,18 @@
             "web/modules/custom/{$name}": ["type:drupal-custom-module"],
             "web/profiles/custom/{$name}": ["type:drupal-custom-profile"],
             "web/recipes/{$name}": ["type:drupal-recipe"],
-            "web/themes/custom/{$name}": ["type:drupal-custom-theme"]
+            "web/themes/custom/{$name}": ["type:drupal-custom-theme"],
+            "web/private/scripts/quicksilver/{$name}/": ["type:quicksilver-script"]
         },
         "installer-types": ["drupal-recipe"],
         "drupal-core-project-message": {
-            "include-keys": ["homepage", "support"],
+            "include-keys": [
+                "homepage",
+                "support"
+            ],
             "post-create-project-cmd-message": [
                 "<bg=blue;fg=white>                                                 </>",
-                "<bg=blue;fg=white>  Congratulations, you’ve installed Starshot!    </>",
+                "<bg=blue;fg=white>  Congratulations, you\u2019ve installed Starshot!    </>",
                 "<bg=blue;fg=white>                                                 </>",
                 "",
                 "<bg=yellow;fg=black>Next steps</>:",
@@ -108,7 +127,12 @@
             }
         }
     },
+    "autoload": {
+        "classmap": ["upstream-configuration/scripts/ComposerScripts.php"]
+    },
     "scripts": {
+        "pre-update-cmd": ["DrupalComposerManaged\\ComposerScripts::preUpdate"],
+        "post-update-cmd": ["DrupalComposerManaged\\ComposerScripts::postUpdate"],
         "drupal:install": [
             "Composer\\Config::disableProcessTimeout",
             "cd web && php -d memory_limit=512M core/scripts/drupal install ../recipes/starshot",
@@ -132,9 +156,7 @@
             "Composer\\Config::disableProcessTimeout",
             "@php -d max_execution_time=0 web/core/scripts/drupal quick-start"
         ],
-        "drupal:run-tests": [
-            "./vendor/bin/phpunit"
-        ],
+        "drupal:run-tests": ["./vendor/bin/phpunit"],
         "post-create-project-cmd": [
             "@drupal:install",
             "test -n \"$CI\" || composer drupal:run-server"
@@ -156,8 +178,6 @@
             "rs",
             "serve"
         ],
-        "drupal:run-tests": [
-            "test"
-        ]
+        "drupal:run-tests": ["test"]
     }
 }
