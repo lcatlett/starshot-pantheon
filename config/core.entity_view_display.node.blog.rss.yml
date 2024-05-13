@@ -1,0 +1,30 @@
+uuid: f98bfb0a-4153-4cd8-b255-ea8d338175c0
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.rss
+    - field.field.node.blog.body
+    - field.field.node.blog.comment
+    - field.field.node.blog.field_image
+    - field.field.node.blog.field_meta_tags
+    - field.field.node.blog.field_tags
+    - node.type.blog
+  module:
+    - user
+_core:
+  default_config_hash: Xui0iMNZ4-n43tLseP9w6LS1HgnvD-bk9wcizPJgjQQ
+id: node.blog.rss
+targetEntityType: node
+bundle: blog
+mode: rss
+content:
+  links:
+    weight: 100
+    region: content
+hidden:
+  body: true
+  comment: true
+  field_image: true
+  field_meta_tags: true
+  field_tags: true
